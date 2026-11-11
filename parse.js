@@ -338,6 +338,29 @@ const Parser = {
     return { canvas, ctx };
   },
 
+  // 画像に白い余白（quiet zone）を追加。jsQR は QR周囲の静謐領域を必要とする
+  _drawWithPadding(img, padPx, scale = 1.0) {
+    const w0 = img.naturalWidth || img.width;
+    const h0 = img.naturalHeight || img.height;
+    const outW = Math.round((w0 + padPx * 2) * scale);
+    const outH = Math.round((h0 + padPx * 2) * scale);
+    const canvas = document.createElement('canvas');
+    canvas.width = outW;
+    canvas.height = outH;
+    const ctx = canvas.getContext('2d');
+    // 白で塗りつぶし
+    ctx.fillStyle = '#ffffff';
+    ctx.fillRect(0, 0, outW, outH);
+    // 中央に画像を描画
+    const dw = Math.round(w0 * scale);
+    const dh = Math.round(h0 * scale);
+    const dx = Math.round(padPx * scale);
+    const dy = Math.round(padPx * scale);
+    ctx.imageSmoothingEnabled = scale < 1;
+    ctx.drawImage(img, dx, dy, dw, dh);
+    return { canvas, ctx };
+  },
+
   _getImageData(ctx, w, h) {
     try { return ctx.getImageData(0, 0, w, h); }
     catch (e) { return null; }
@@ -369,8 +392,23 @@ const Parser = {
       const h0 = img.naturalHeight || img.height;
       if (!w0 || !h0) return null;
 
-      // すべてのスケールパターンを試行
-      const scales = [1.0, 2.0, 1.5, 3.0, 0.75, 0.5, 4.0, 0.33];
+      // すべてのスケールパターンを試行（小さい画像向けに6x, 8xも追加）
+      const scales = [1.0, 2.0, 1.5, 3.0, 0.75, 0.5, 4.0, 0.33, 6.0, 8.0];
+
+      // ===== Phase 0: 白余白(quiet zone)付き - jsQRは画像端にQRが接している場合に失敗するため =====
+      //   救急隊ダッシュボードの右クリック画像コピー等、quiet zoneが欠けた画像に有効
+      for (const padPx of [40, 80, 60, 120, 20]) {
+        for (const scale of [1.0, 1.5, 2.0]) {
+          const outW = Math.round((w0 + padPx * 2) * scale);
+          const outH = Math.round((h0 + padPx * 2) * scale);
+          if (outW < 40 || outW > 4096) continue;
+          const { ctx } = this._drawWithPadding(img, padPx, scale);
+          const data = this._getImageData(ctx, outW, outH);
+          if (!data) continue;
+          const r = this._tryJsQR(data);
+          if (r) { console.log('[QR] Phase0 padding=', padPx, 'scale=', scale); return r; }
+        }
+      }
 
       // ===== Phase 1: オリジナル、複数スケール =====
       for (const scale of scales) {
