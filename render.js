@@ -183,12 +183,12 @@ const Renderer = {
           <div class="t-out-row">
             <div class="t-sublabel">最終転帰</div>
             <div class="t-out-opts">
-              ・${sel('入院', outAdmit)}　・${sel('帰宅', outHome)}　・${sel(`その他(${esc(res.out_other || '')})`, outOther)}
+              ・${sel('入院', outAdmit)}　・${sel('帰宅', outHome)}　・${sel(`その他(${(res.out_other && res.out_other.trim()) ? esc(res.out_other) : '　　　　　　　　　　'})`, outOther)}
             </div>
             <div class="t-sublabel">入院の場合</div>
             <div class="t-ward-opts">
-              <div>病棟：・${sel('4東', ward4H)}　・${sel('HCU', wardHCU)}　・${sel('ICU', wardICU)}　・${sel(`${esc(wardOtherTxt)}病棟`, wardOther)}</div>
-              <div>主科：・${sel('臨研', mainRin)}　・${sel('救急科', mainER)}　・${sel(`(${esc(mainOtherTxt)})科`, mainOther)}</div>
+              <div>病棟：・${sel('4東', ward4H)}　・${sel('HCU', wardHCU)}　・${sel('ICU', wardICU)}　・${sel(`${wardOtherTxt ? esc(wardOtherTxt) : '(　　　　　　　　)'}病棟`, wardOther)}</div>
+              <div>主科：・${sel('臨研', mainRin)}　・${sel('救急科', mainER)}　・${sel(`(${mainOtherTxt ? esc(mainOtherTxt) : '　　　　　　　　'})科`, mainOther)}</div>
             </div>
           </div>
         </div>
