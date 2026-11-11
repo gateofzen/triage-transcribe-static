@@ -22,9 +22,14 @@
 
 <!-- セキュリティ重要事項バナー -->
 <div class="security-banner">
-  <strong>⚠️ 転記専用ツール：データは一切保存されません</strong>
-  <small>本アプリは外部サーバ・ローカルディスクのいずれにも患者情報を保存しません。印刷後、タブを閉じると入力内容はすべて消失します。</small>
+  ⚠️ データは保存されません。タブを閉じるとデータは消失します。
 </div>
+
+<!-- アプリ切替ナビ（既承認の救急隊ダッシュボードへのリンク） -->
+<nav class="app-nav" aria-label="関連ツール">
+  <span class="current" aria-current="page"><span class="nav-emoji">🚑</span><span class="nav-label">トリアージ台帳</span></span>
+  <a href="https://ems-dashboard.jp/dashboard" class="external" target="_blank" rel="noopener"><span class="nav-emoji">🚨</span><span class="nav-label">救急隊ダッシュボード</span></a>
+</nav>
 
 <!-- メイン画面 -->
 <div id="main-screen" class="screen">
@@ -73,8 +78,9 @@
 
       <div class="form-grid-2">
         <div class="form-row">
-          <label>No.</label>
+          <label>No.<small style="color:#888;font-size:0.75em">（空欄なら印刷後に手書き）</small></label>
           <select id="f-case-no">
+            <option value="">（未入力）</option>
             <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
             <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
             <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
@@ -279,9 +285,6 @@
     <div id="patient-list"></div>
     <div class="button-row">
       <button id="bulk-generate-btn" class="btn-primary">🖨️ 全患者の台帳を一括生成</button>
-    </div>
-    <div class="button-row">
-      <button id="bulk-clear-btn" class="btn-ghost">🗑️ セッション内の患者を全削除</button>
     </div>
   </section>
 

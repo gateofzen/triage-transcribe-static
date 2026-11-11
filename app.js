@@ -125,7 +125,6 @@ const App = {
 
     // 一括操作
     document.getElementById('bulk-generate-btn').addEventListener('click', () => this.bulkGenerate());
-    document.getElementById('bulk-clear-btn').addEventListener('click', () => this.bulkClear());
 
     document.getElementById('print-all-btn').addEventListener('click', () => window.print());
     document.getElementById('close-preview-btn').addEventListener('click', () => {
@@ -341,9 +340,8 @@ const App = {
       document.getElementById('f-origin-sel').value = '';
     }
 
-    // No. 自動設定
-    const nextNo = Parser.autoCaseNo(this.records, defaultDt);
-    document.getElementById('f-case-no').value = String(nextNo);
+    // No. はデフォルト空欄（印刷後に手書き or 必要時にプルダウンから選択）
+    document.getElementById('f-case-no').value = '';
 
     // 不応需理由のサブフィールドを一旦リセット
     document.querySelectorAll('input[name="bed_sub"]').forEach(r => { r.checked = false; });
@@ -423,9 +421,11 @@ const App = {
 
     const freeNote = document.getElementById('f-free-note').value.trim();
 
+    const caseNoStr = document.getElementById('f-case-no').value.trim();
+    const caseNo = caseNoStr ? parseInt(caseNoStr) : '';
     return {
       data,
-      case_no: parseInt(document.getElementById('f-case-no').value) || 1,
+      case_no: caseNo,
       recorder: document.getElementById('f-recorder').value,
       origin,
       history_yn: histYn,
@@ -504,7 +504,8 @@ const App = {
       const idb = Parser.getShiftIdentity(b.data?.dt_str || '') || { shiftDate: '', shift: '' };
       if (ida.shiftDate !== idb.shiftDate) return ida.shiftDate.localeCompare(idb.shiftDate);
       if (ida.shift !== idb.shift) return ida.shift.localeCompare(idb.shift);
-      return (a.case_no || 0) - (b.case_no || 0);
+      // 同じシフト内は受付日時順（dt_str の文字列比較で時刻順になる）
+      return (a.data?.dt_str || '').localeCompare(b.data?.dt_str || '');
     });
 
     let currentGroup = null;
@@ -530,7 +531,7 @@ const App = {
       const outcome = rec.res?.decision === '不応需' ? '不応需' : (rec.res?.out || '未記入');
       item.innerHTML = `
         <div class="info">
-          <b>${rec.case_no || '?'}.${escapeHtml(name)}</b>${ageStr} ${escapeHtml(dt)} 🚑${escapeHtml(origin)} 転帰:${escapeHtml(outcome)}
+          <b>${rec.case_no ? rec.case_no + '.' : ''}${escapeHtml(name)}</b>${ageStr} ${escapeHtml(dt)} 🚑${escapeHtml(origin)} 転帰:${escapeHtml(outcome)}
         </div>
         <div class="actions">
           <button data-key="${key}" data-action="edit">編集</button>
@@ -562,7 +563,7 @@ const App = {
     document.querySelector(`input[name="hist"][value="${rec.history_yn || '無'}"]`).checked = true;
     document.querySelector(`input[name="hist"][value="${rec.history_yn || '無'}"]`).dispatchEvent(new Event('change'));
     if (rec.history_dept) document.getElementById('f-hist-dept').value = rec.history_dept;
-    document.getElementById('f-case-no').value = String(rec.case_no || 1);
+    document.getElementById('f-case-no').value = rec.case_no ? String(rec.case_no) : '';
     document.getElementById('f-recorder').value = rec.recorder || '前川';
     const res = rec.res || {};
     if (res.init) document.getElementById('f-init').value = res.init;
@@ -618,15 +619,6 @@ const App = {
     this.renderPatientList();
   },
 
-  bulkClear() {
-    const count = Object.keys(this.records).length;
-    if (!count) return;
-    if (!confirm(`本セッションの患者${count}人全員を削除しますか？（取り消し不能）`)) return;
-    this.records = {};
-    this.setStatus(`🗑️ ${count}人を一括削除しました`, 'success');
-    this.renderPatientList();
-  },
-
   async bulkGenerate() {
     const entries = Object.entries(this.records);
     if (!entries.length) { this.setStatus('⚠️ 患者がいません', 'warning'); return; }
@@ -636,7 +628,8 @@ const App = {
       const idb = Parser.getShiftIdentity(b.data?.dt_str || '') || { shiftDate: '', shift: '' };
       if (ida.shiftDate !== idb.shiftDate) return ida.shiftDate.localeCompare(idb.shiftDate);
       if (ida.shift !== idb.shift) return ida.shift.localeCompare(idb.shift);
-      return (a.case_no || 0) - (b.case_no || 0);
+      // 同じシフト内は受付日時順
+      return (a.data?.dt_str || '').localeCompare(b.data?.dt_str || '');
     });
     const canvases = [];
     for (const [, rec] of sorted) {
