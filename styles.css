@@ -578,6 +578,11 @@ textarea { resize: vertical; }
 }
 .triage-ledger .t-init-row:last-child, .triage-ledger .t-out-row:last-child { border-bottom: none; }
 .triage-ledger .t-init-opts, .triage-ledger .t-out-opts, .triage-ledger .t-ward-opts { padding: 4px 8px; }
+/* 初期対応した科は1行に収めたい */
+.triage-ledger .t-init-opts { white-space: nowrap; }
+/* 最終転帰・入院の場合 の各行は明示的な改行で揃えたい */
+.triage-ledger .t-out-opts > div,
+.triage-ledger .t-ward-opts > div { white-space: nowrap; }
 .triage-ledger .t-out-row { grid-template-columns: 110px 1fr 110px 2fr; }
 /* 最終転帰と入院の場合の間、入院の場合とward-optsの間に縦線を入れる */
 .triage-ledger .t-out-row > *:nth-child(3),

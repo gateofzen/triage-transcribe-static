@@ -120,7 +120,7 @@ const Renderer = {
         <div class="t-cell t-value">${esc(rec.origin || '')} <span class="t-suffix">救急隊</span></div>
         <div class="t-cell t-label">受診歴</div>
         <div class="t-cell t-value t-hist">
-          ${sel(`有(${esc(histDept)}科)`, histYes)} ・ ${sel('無', histNo)}
+          ${sel('有', histYes)} (${histDept ? esc(histDept) : '　　　　　　　　'})科 ・ ${sel('無', histNo)}
         </div>
       </div>
 
@@ -177,18 +177,23 @@ const Renderer = {
             <div class="t-init-opts">
               ・${sel('当直医', initWatch)}
               ・${sel('救急科', initER)}
-              ・${sel(`その他(${esc(initOtherTxt)}科)`, initOther)}
+              ・${sel('その他', initOther)} (${initOtherTxt ? esc(initOtherTxt) : '　　　　　　'})科
             </div>
           </div>
           <div class="t-out-row">
             <div class="t-sublabel">最終転帰</div>
             <div class="t-out-opts">
-              ・${sel('入院', outAdmit)}　・${sel('帰宅', outHome)}　・${sel(`その他(${(res.out_other && res.out_other.trim()) ? esc(res.out_other) : '　　　　　　　　　　'})`, outOther)}
+              <div>・${sel('入院', outAdmit)}</div>
+              <div>・${sel('帰宅', outHome)}</div>
+              <div>・${sel('その他', outOther)}</div>
+              <div>(${(res.out_other && res.out_other.trim()) ? esc(res.out_other) : '　　　　　　　　　　'})</div>
             </div>
             <div class="t-sublabel">入院の場合</div>
             <div class="t-ward-opts">
-              <div>病棟：・${sel('4東', ward4H)}　・${sel('HCU', wardHCU)}　・${sel('ICU', wardICU)}　・${sel(`${wardOtherTxt ? esc(wardOtherTxt) : '(　　　　　　　　)'}病棟`, wardOther)}</div>
-              <div>主科：・${sel('臨研', mainRin)}　・${sel('救急科', mainER)}　・${sel(`(${mainOtherTxt ? esc(mainOtherTxt) : '　　　　　　　　'})科`, mainOther)}</div>
+              <div>病棟：・${sel('4東', ward4H)}　・${sel('HCU', wardHCU)}　・${sel('ICU', wardICU)}</div>
+              <div>・${sel(`${wardOtherTxt ? esc(wardOtherTxt) : '(　　　　　　　　)'}病棟`, wardOther)}</div>
+              <div>主科：・${sel('臨研', mainRin)}　・${sel('救急科', mainER)}</div>
+              <div>・${sel(`(${mainOtherTxt ? esc(mainOtherTxt) : '　　　　　　　　'})科`, mainOther)}</div>
             </div>
           </div>
         </div>
