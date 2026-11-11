@@ -2,7 +2,7 @@
  * Service Worker - 転記専用版
  * 静的アセットのみキャッシュ。患者データは一切扱わない。
  * ============================================================ */
-const CACHE_NAME = 'triage-transcribe-v2';
+const CACHE_NAME = 'triage-transcribe-v3';
 const ASSETS = [
   './',
   './index.html',

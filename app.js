@@ -215,17 +215,30 @@ const App = {
   },
 
   async processQRBlob(blob) {
-    this.setStatus('🔄 QRコード解析中...（複数パターンで試行）', 'info');
+    // jsQRロードチェック
+    if (typeof jsQR === 'undefined') {
+      this.setStatus('❌ QRコード解析ライブラリ（jsQR）が読み込まれていません。インターネット接続を確認してください。', 'error');
+      return;
+    }
+    // 画像サイズ情報を取得
+    const img = await new Promise((resolve) => {
+      const i = new Image();
+      i.onload = () => resolve(i);
+      i.onerror = () => resolve(null);
+      i.src = URL.createObjectURL(blob);
+    });
+    const sizeInfo = img ? `${img.naturalWidth}×${img.naturalHeight}px、${Math.round(blob.size/1024)}KB` : '画像読込失敗';
+    this.setStatus(`🔄 QRコード解析中...（${sizeInfo}、複数パターンで試行）`, 'info');
     try {
       const raw = await Parser.decodeQRFromBlob(blob);
       if (!raw) {
-        this.setStatus('❌ QRコードが認識できませんでした（画像が小さすぎる・鮮明でない・QRコードが含まれていない可能性）', 'error');
+        this.setStatus(`❌ QRコードが認識できませんでした（画像: ${sizeInfo}）\n画像が小さい・ぼやけている・QRコードが画像内にない可能性があります。より高解像度のスクリーンショットで再試行してください。`, 'error');
         return;
       }
       const data = Parser.parseQR(raw);
       this.currentMode = 'qr';
       this.showForm(data);
-      this.setStatus(`✅ QRコード解析成功（${raw.length}文字）`, 'success');
+      this.setStatus(`✅ QRコード解析成功（${raw.length}文字、画像: ${sizeInfo}）`, 'success');
     } catch (e) {
       this.setStatus('❌ ' + (e.message || e), 'error');
     }
