@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>トリアージ台帳（転記専用）</title>
+<link rel="stylesheet" href="styles.css">
+<!-- 絵文字を画像化（病院PC等、絵文字フォント未搭載環境でも表示するため） -->
+<script src="https://cdn.jsdelivr.net/npm/@twemoji/api@15.1.0/dist/twemoji.min.js"></script>
+<script src="emoji.js"></script>
+<!-- PWA -->
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#ff4b4b">
+<link rel="apple-touch-icon" href="apple-touch-icon.png">
+<link rel="icon" type="image/png" href="favicon.png">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="トリアージ">
+</head>
+<body>
+
+<!-- セキュリティ重要事項バナー -->
+<div class="security-banner">
+  <strong>⚠️ 転記専用ツール：データは一切保存されません</strong>
+  <small>本アプリは外部サーバ・ローカルディスクのいずれにも患者情報を保存しません。印刷後、タブを閉じると入力内容はすべて消失します。</small>
+</div>
+
+<!-- メイン画面 -->
+<div id="main-screen" class="screen">
+  <header class="main-header">
+    <h1>🚑 トリアージ台帳 <small style="font-size:0.5em;color:#888">(転記専用 build-2026-11-11)</small></h1>
+    <details class="token-setting">
+      <summary>⚙️ 設定</summary>
+      <button type="button" id="force-reload-btn" class="btn-ghost" style="margin-top:8px">🔄 キャッシュクリア＆再読み込み</button>
+    </details>
+  </header>
+
+  <!-- 新規患者入力モード選択 -->
+  <section class="input-mode-section">
+    <h2>🆕 新規患者</h2>
+    <div class="mode-buttons">
+      <button id="mode-qr-paste" class="btn-mode">📷 QRコードを貼り付け</button>
+      <button id="mode-text" class="btn-mode">📋 テキスト貼り付け</button>
+      <button id="mode-manual" class="btn-mode">✍️ 手入力</button>
+    </div>
+
+    <!-- QR貼り付けモード -->
+    <div id="qr-mode-pane" class="mode-pane hidden">
+      <p class="caption">下の枠内をクリックして <b>Ctrl+V</b> で画像を貼り付けてください。</p>
+      <div id="qr-paste-zone" class="qr-paste-zone" tabindex="0" contenteditable="true">ここをクリックして Ctrl+V で画像を貼り付け</div>
+      <div class="button-row">
+        <button id="qr-mode-close" class="btn-secondary">❌ 閉じる</button>
+      </div>
+    </div>
+
+    <!-- テキスト貼り付けモード -->
+    <div id="text-mode-pane" class="mode-pane hidden">
+      <p class="caption">救急システムの「コピー」ボタンでコピーしたテキストを貼り付けてください。自動で解析します。</p>
+      <textarea id="text-input" rows="8" placeholder="ここにテキストを貼り付け..."></textarea>
+      <button id="text-clear" class="btn-secondary">🗑️ クリア</button>
+      <div id="text-parse-info" class="info-box hidden"></div>
+    </div>
+
+    <!-- 患者情報編集フォーム -->
+    <div id="patient-form" class="mode-pane hidden">
+      <h3 id="patient-form-title">患者情報</h3>
+
+      <div class="form-row">
+        <label>受付日時 <span class="req">*</span></label>
+        <input type="text" id="f-dt-str" placeholder="例: 11/8（土）10:30">
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-row">
+          <label>No.</label>
+          <select id="f-case-no">
+            <option>1</option><option>2</option><option>3</option><option>4</option><option>5</option>
+            <option>6</option><option>7</option><option>8</option><option>9</option><option>10</option>
+            <option>11</option><option>12</option><option>13</option><option>14</option><option>15</option>
+          </select>
+        </div>
+        <div class="form-row">
+          <label>記載者</label>
+          <select id="f-recorder">
+            <option>前川</option><option>中嶋</option><option>森木</option>
+            <option>小舘</option><option>遠藤</option><option>提嶋</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-row">
+          <label>依頼元救急隊</label>
+          <select id="f-origin-sel">
+            <option value="">--選択--</option>
+            <option>その他（直接入力）</option>
+            <option>警防</option><option>中央</option><option>大通</option><option>山鼻</option>
+            <option>豊水</option><option>幌西</option><option>北</option><option>北エルム</option>
+            <option>あいの里</option><option>篠路</option><option>新光</option><option>東</option>
+            <option>東モエレ</option><option>栄</option><option>札苗</option><option>苗穂</option>
+            <option>白石</option><option>南郷</option><option>菊水</option><option>北郷</option>
+            <option>厚別</option><option>厚別西</option><option>豊平</option><option>月寒</option>
+            <option>平岸</option><option>西岡</option><option>清田</option><option>北野</option>
+            <option>南</option><option>藤野</option><option>定山渓</option><option>西</option>
+            <option>発寒</option><option>八軒</option><option>西野</option><option>手稲</option><option>前田</option>
+          </select>
+          <input type="text" id="f-origin-free" class="hidden" placeholder="救急隊名を直接入力">
+        </div>
+        <div class="form-row">
+          <label>受診歴</label>
+          <div class="radio-group">
+            <label><input type="radio" name="hist" value="無" checked>無</label>
+            <label><input type="radio" name="hist" value="有">有</label>
+          </div>
+          <input type="text" id="f-hist-dept" class="hidden" placeholder="受診科名">
+        </div>
+      </div>
+
+      <div class="form-grid-2">
+        <div class="form-row">
+          <label>氏名（漢字）</label>
+          <input type="text" id="f-kanji" placeholder="山田 太郎">
+        </div>
+        <div class="form-row">
+          <label>氏名（カナ）</label>
+          <input type="text" id="f-kana" placeholder="ヤマダ タロウ">
+        </div>
+      </div>
+
+      <div class="form-grid-3">
+        <div class="form-row">
+          <label>年齢（才）</label>
+          <input type="number" id="f-age" min="0" max="120">
+        </div>
+        <div class="form-row">
+          <label>性別</label>
+          <div class="radio-group">
+            <label><input type="radio" name="gender" value="1">男</label>
+            <label><input type="radio" name="gender" value="2">女</label>
+            <label><input type="radio" name="gender" value="">未</label>
+          </div>
+        </div>
+        <div class="form-row">
+          <label>生年月日</label>
+          <div class="birth-inputs">
+            <input type="number" id="f-birth-y" placeholder="1950" min="1900" max="2026">
+            <input type="number" id="f-birth-m" placeholder="月" min="1" max="12">
+            <input type="number" id="f-birth-d" placeholder="日" min="1" max="31">
+          </div>
+          <button type="button" id="calc-age-btn" class="btn-tiny">生年月日から年齢計算</button>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label>主訴</label>
+        <input type="text" id="f-complaint" placeholder="胸痛、呼吸困難">
+      </div>
+      <div class="form-row">
+        <label>経過等</label>
+        <textarea id="f-history" rows="3" placeholder="発症経緯など"></textarea>
+      </div>
+
+      <h4>バイタルサイン</h4>
+      <div class="form-grid-vitals">
+        <div class="form-row"><label>JCS</label><input type="text" id="f-jcs" value="0"></div>
+        <div class="form-row"><label>BP (上)</label><input type="text" id="f-bps" placeholder="120"></div>
+        <div class="form-row"><label>BP (下)</label><input type="text" id="f-bpd" placeholder="80"></div>
+        <div class="form-row"><label>HR</label><input type="text" id="f-hr" placeholder="80"></div>
+        <div class="form-row"><label>RR</label><input type="text" id="f-rr" placeholder="16"></div>
+        <div class="form-row"><label>SpO2</label><input type="text" id="f-spo2" placeholder="98"></div>
+        <div class="form-row"><label>BT</label><input type="text" id="f-bt" placeholder="36.5"></div>
+        <div class="form-row"><label>O2(L)</label><input type="text" id="f-o2" placeholder=""></div>
+      </div>
+
+      <h4>判定・転帰</h4>
+      <div class="form-row">
+        <label>判定</label>
+        <div class="radio-group">
+          <label><input type="radio" name="decision" value="応需" checked>応需</label>
+          <label><input type="radio" name="decision" value="不応需">不応需</label>
+        </div>
+      </div>
+
+      <!-- 応需時の詳細 -->
+      <div id="accept-details">
+        <div class="form-grid-2">
+          <div class="form-row">
+            <label>初期対応した科</label>
+            <select id="f-init">
+              <option>当直医</option><option>救急科</option><option>その他</option>
+            </select>
+            <input type="text" id="f-init-other" class="hidden" placeholder="科名">
+          </div>
+          <div class="form-row">
+            <label>最終転帰</label>
+            <select id="f-out">
+              <option value="（後で入力）">（後で入力）</option>
+              <option>入院</option><option>帰宅</option><option>その他</option>
+            </select>
+            <input type="text" id="f-out-other" class="hidden" placeholder="転帰">
+          </div>
+        </div>
+
+        <div id="admit-details" class="hidden">
+          <div class="form-grid-2">
+            <div class="form-row">
+              <label>病棟</label>
+              <select id="f-ward">
+                <option value="（後で入力）">（後で入力）</option>
+                <option>4東</option><option>6東</option><option>HCU</option><option>ICU</option><option>その他</option>
+              </select>
+              <input type="text" id="f-ward-other" class="hidden" placeholder="病棟名">
+            </div>
+            <div class="form-row">
+              <label>主科</label>
+              <select id="f-main">
+                <option value="（後で入力）">（後で入力）</option>
+                <option>臨研</option><option>救急科</option><option>その他</option>
+              </select>
+              <input type="text" id="f-main-other" class="hidden" placeholder="主科名">
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- 不応需時の理由 -->
+      <div id="reject-details" class="hidden">
+        <div class="form-row">
+          <label>不応需理由</label>
+          <select id="f-reason">
+            <option>1. 緊急性なし</option>
+            <option>2. ベッド満床</option>
+            <option>3. 既定の応需不可</option>
+            <option>4. 対応可能な医師不在</option>
+            <option>5. 緊急手術制限中</option>
+            <option>6-A. 医師処置中につき対応困難</option>
+            <option>6-B. 看護師処置中につき対応困難</option>
+            <option>7. その他</option>
+          </select>
+        </div>
+        <div class="form-row hidden" id="f-bed-sub-row">
+          <label>ベッド満床の場所</label>
+          <div class="radio-group">
+            <label><input type="radio" name="bed_sub" value="救急外来">救急外来</label>
+            <label><input type="radio" name="bed_sub" value="HCU">HCU</label>
+            <label><input type="radio" name="bed_sub" value="4東">4東</label>
+            <label><input type="radio" name="bed_sub" value="その他">その他</label>
+          </div>
+        </div>
+        <div class="form-row hidden" id="f-reason-comment-row">
+          <label>コメント</label>
+          <input type="text" id="f-reason-comment" placeholder="理由の詳細を記入">
+        </div>
+        <div class="form-row hidden" id="f-reason-quick-row">
+          <label>よくある理由</label>
+          <div class="quick-chip-group">
+            <button type="button" class="quick-chip" data-reason-text="整形外科対応不能のため">整形外科対応不能のため</button>
+          </div>
+        </div>
+      </div>
+
+      <div class="form-row">
+        <label>自由記載</label>
+        <textarea id="f-free-note" rows="3"></textarea>
+      </div>
+
+      <div class="button-row">
+        <button id="add-to-list-btn" class="btn-primary">➕ 一覧に追加（メモリ内のみ）</button>
+        <button id="generate-now-btn" class="btn-primary">🖨️ 今すぐ台帳を生成</button>
+        <button id="cancel-input-btn" class="btn-secondary">❌ キャンセル</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- メモリ内の患者リスト（タブを閉じると消失） -->
+  <section class="patients-section">
+    <h2>📋 本セッションの患者 <small style="font-size:0.5em;color:#ff9800">⚠️ メモリ内のみ・タブを閉じると消失</small></h2>
+    <div id="patient-list"></div>
+    <div class="button-row">
+      <button id="bulk-generate-btn" class="btn-primary">🖨️ 全患者の台帳を一括生成</button>
+    </div>
+    <div class="button-row">
+      <button id="bulk-clear-btn" class="btn-ghost">🗑️ セッション内の患者を全削除</button>
+    </div>
+  </section>
+
+  <!-- 台帳プレビュー表示エリア -->
+  <section id="ledger-preview-section" class="hidden">
+    <h2>📄 台帳プレビュー</h2>
+    <div class="button-row">
+      <button id="print-all-btn" class="btn-primary">🖨️ 印刷</button>
+      <button id="close-preview-btn" class="btn-secondary">閉じる</button>
+    </div>
+    <div id="ledger-canvases"></div>
+  </section>
+
+  <!-- ステータス -->
+  <div id="status-bar"></div>
+</div>
+
+<!-- インストールボタン -->
+<button id="install-btn" class="hidden" type="button">📲 ホーム画面に追加</button>
+
+<!-- 外部ライブラリ -->
+<script src="https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js"></script>
+
+<!-- アプリ本体 -->
+<script src="parse.js"></script>
+<script src="render.js"></script>
+<script src="app.js"></script>
+
+<!-- Service Worker登録 -->
+<script>
+(function(){
+  let reloadOnce = false;
+  if ('serviceWorker' in navigator) {
+    window.addEventListener('load', async () => {
+      try {
+        const reg = await navigator.serviceWorker.register('sw.js');
+        reg.addEventListener('updatefound', () => {
+          const nw = reg.installing;
+          if (!nw) return;
+          nw.addEventListener('statechange', () => {
+            if (nw.state === 'installed' && navigator.serviceWorker.controller) {
+              nw.postMessage({ type: 'SKIP_WAITING' });
+            }
+          });
+        });
+        navigator.serviceWorker.addEventListener('controllerchange', () => {
+          if (reloadOnce) return;
+          reloadOnce = true;
+          window.location.reload();
+        });
+        reg.update().catch(()=>{});
+      } catch (err) { console.warn('SW register failed:', err); }
+    });
+  }
+  let deferredPrompt = null;
+  const btn = document.getElementById('install-btn');
+  window.addEventListener('beforeinstallprompt', (e) => {
+    e.preventDefault();
+    deferredPrompt = e;
+    if (btn) btn.classList.remove('hidden');
+  });
+  if (btn) {
+    btn.addEventListener('click', async () => {
+      if (!deferredPrompt) return;
+      deferredPrompt.prompt();
+      const { outcome } = await deferredPrompt.userChoice;
+      console.log('PWA install:', outcome);
+      deferredPrompt = null;
+      btn.classList.add('hidden');
+    });
+  }
+  window.addEventListener('appinstalled', () => {
+    if (btn) btn.classList.add('hidden');
+  });
+
+  // タブ閉じる前の警告（データ消失防止）
+  window.addEventListener('beforeunload', (e) => {
+    if (window.App && Object.keys(App.records).length > 0) {
+      e.preventDefault();
+      e.returnValue = '登録済みの患者データがあります。タブを閉じるとすべて消失します。本当に閉じますか？';
+      return e.returnValue;
+    }
+  });
+})();
+</script>
+
+</body>
+</html>

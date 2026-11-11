@@ -1,0 +1,719 @@
+/* ===== セキュリティ重要事項バナー（転記専用版の冒頭に常時表示） ===== */
+.security-banner {
+  background: linear-gradient(90deg, #4a2a00 0%, #5a3500 100%);
+  border-bottom: 2px solid #ff9800;
+  color: #ffd080;
+  padding: 10px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  font-size: 0.9rem;
+}
+.security-banner strong { font-size: 1.0rem; color: #ffb040; }
+.security-banner small { color: #ffd080; font-size: 0.82rem; }
+
+@media print {
+  .security-banner { display: none !important; }
+}
+
+/* ===== QRコード貼り付けゾーン ===== */
+.qr-paste-zone {
+  min-height: 120px;
+  padding: 24px 16px;
+  background: #0e1117;
+  border: 2px dashed #555;
+  border-radius: 6px;
+  color: #888;
+  text-align: center;
+  cursor: text;
+  user-select: text;
+  outline: none;
+  transition: all 0.15s;
+  overflow: auto;
+  max-height: 300px;
+}
+.qr-paste-zone:focus {
+  border-color: #ff4b4b;
+  color: #fafafa;
+  background: #141720;
+}
+.qr-paste-zone img {
+  max-width: 100%;
+  max-height: 200px;
+  display: block;
+  margin: 8px auto;
+}
+
+/* ===== Twemoji（絵文字を文字高さに合わせたインライン画像にする） ===== */
+img.emoji {
+  height: 1em;
+  width: 1em;
+  margin: 0 0.05em 0 0.1em;
+  vertical-align: -0.1em;
+  display: inline-block;
+}
+
+/* ===== 基本 ===== */
+* { box-sizing: border-box; }
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", "Helvetica Neue",
+               "Hiragino Sans", "Noto Sans CJK JP", sans-serif;
+  margin: 0;
+  padding: 0;
+  background: #0e1117;
+  color: #fafafa;
+  line-height: 1.5;
+}
+h1, h2, h3, h4 { color: #fafafa; margin: 0.5em 0; }
+h1 { font-size: 1.5rem; }
+h2 { font-size: 1.2rem; border-bottom: 1px solid #333; padding-bottom: 4px; }
+h3 { font-size: 1.1rem; }
+h4 { font-size: 1rem; color: #ccc; }
+
+.screen { padding: 16px; max-width: 900px; margin: 0 auto; }
+.hidden { display: none !important; }
+
+/* ===== ログインゲート（pre-auth時のみログイン画面、それ以外は本体） ===== */
+html.pre-auth #main-screen,
+html.pre-auth .app-nav,
+html.pre-auth #install-btn { display: none !important; }
+html:not(.pre-auth) #login-screen { display: none !important; }
+
+/* ===== ログイン ===== */
+#login-screen {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 100vh;
+}
+.login-box {
+  background: #1a1d24;
+  padding: 24px;
+  border-radius: 8px;
+  max-width: 400px;
+  width: 100%;
+  border: 1px solid #333;
+}
+.caption { color: #888; font-size: 0.9rem; margin: 8px 0; }
+#login-form { display: flex; flex-direction: column; gap: 8px; }
+#login-form label { font-size: 0.9rem; color: #ccc; }
+#login-form input {
+  padding: 10px;
+  background: #0e1117;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #fafafa;
+  font-size: 1rem;
+}
+.error-msg { color: #ff4b4b; margin-top: 8px; min-height: 1.2em; }
+details { margin-top: 16px; }
+details summary { cursor: pointer; color: #888; font-size: 0.9rem; }
+.help-text { font-size: 0.85rem; color: #888; margin: 8px 0; }
+
+/* ===== メインヘッダー ===== */
+.main-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 16px;
+}
+
+/* ===== アプリ切替ナビゲーション ===== */
+.app-nav {
+  display: flex;
+  gap: 4px;
+  padding: 8px 12px;
+  background: #1a1d24;
+  border-bottom: 1px solid #333;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+  position: sticky;
+  top: 0;
+  z-index: 100;
+}
+.app-nav a {
+  flex: 1 1 auto;
+  min-width: 70px;
+  text-align: center;
+  padding: 8px 10px;
+  text-decoration: none;
+  color: #aab;
+  background: #262730;
+  border: 1px solid #333;
+  border-radius: 6px;
+  font-size: 0.85rem;
+  white-space: nowrap;
+  transition: all 0.15s;
+}
+.app-nav a:hover {
+  background: #3d3f4a;
+  color: #fafafa;
+}
+.app-nav a.current {
+  background: #ff4b4b;
+  color: white;
+  border-color: #ff4b4b;
+  font-weight: bold;
+}
+.app-nav a.external::after { content: ' ↗'; opacity: 0.6; }
+.app-nav .nav-emoji { display: block; font-size: 1.1rem; line-height: 1.1; margin-bottom: 2px; }
+.app-nav .nav-label { display: block; font-size: 0.75rem; }
+@media (min-width: 600px) {
+  .app-nav .nav-emoji { display: inline; font-size: 1rem; margin-bottom: 0; margin-right: 4px; }
+  .app-nav .nav-label { display: inline; font-size: 0.85rem; }
+}
+@media print {
+  .app-nav { display: none !important; }
+}
+
+/* ===== インストールボタン ===== */
+#install-btn {
+  position: fixed;
+  bottom: 16px;
+  right: 16px;
+  background: #ff4b4b;
+  color: white;
+  border: none;
+  border-radius: 24px;
+  padding: 10px 16px;
+  font-size: 0.9rem;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.4);
+  z-index: 200;
+  cursor: pointer;
+}
+#install-btn:hover { background: #ff3030; }
+@media print {
+  #install-btn { display: none !important; }
+}
+
+/* ===== ボタン ===== */
+button {
+  cursor: pointer;
+  padding: 10px 16px;
+  border-radius: 4px;
+  border: 1px solid #333;
+  font-size: 0.95rem;
+  font-family: inherit;
+  transition: all 0.15s;
+}
+.btn-primary {
+  background: #ff4b4b;
+  color: white;
+  border-color: #ff4b4b;
+}
+.btn-primary:hover { background: #ff3030; }
+.btn-secondary {
+  background: #262730;
+  color: #fafafa;
+}
+.btn-secondary:hover { background: #3d3f4a; }
+.btn-ghost {
+  background: transparent;
+  color: #888;
+  border-color: #444;
+}
+.btn-ghost:hover { color: #fafafa; border-color: #666; }
+.btn-tiny {
+  padding: 4px 8px;
+  font-size: 0.85rem;
+  background: #2d3046;
+  color: #aab;
+  border-color: #444;
+}
+
+/* モード選択ボタン（3つ横並び、同じサイズ） */
+.mode-buttons {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 8px;
+  margin: 12px 0;
+}
+.btn-mode {
+  height: 48px;
+  background: #262730;
+  color: #fafafa;
+  border: 1px solid #444;
+  font-weight: 500;
+}
+.btn-mode:hover { background: #3d3f4a; }
+.btn-mode.active { background: #ff4b4b; border-color: #ff4b4b; color: white; }
+
+/* ===== フォーム ===== */
+.mode-pane { margin-top: 16px; padding: 16px; background: #1a1d24; border-radius: 8px; }
+.form-row { margin-bottom: 12px; display: flex; flex-direction: column; gap: 4px; }
+.form-row label { font-size: 0.9rem; color: #ccc; }
+.form-row input[type="text"],
+.form-row input[type="number"],
+.form-row input[type="password"],
+.form-row select,
+.form-row textarea,
+textarea,
+input[type="text"],
+input[type="number"],
+input[type="password"] {
+  padding: 8px;
+  background: #0e1117;
+  border: 1px solid #333;
+  border-radius: 4px;
+  color: #fafafa;
+  font-size: 1rem;
+  font-family: inherit;
+  width: 100%;
+}
+textarea { resize: vertical; }
+.form-grid-2 { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+.form-grid-3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 12px; }
+.form-grid-vitals { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
+.radio-group { display: flex; gap: 12px; padding: 8px 0; }
+.radio-group label { display: flex; align-items: center; gap: 4px; cursor: pointer; }
+/* クイック選択チップ（3.既定の応需不可 など、よくある理由の一発入力ボタン） */
+.quick-chip-group { display: flex; gap: 8px; padding: 6px 0; flex-wrap: wrap; }
+.quick-chip {
+  padding: 6px 14px;
+  border: 1px solid #ff9800;
+  background: #2a2318;
+  color: #ffc072;
+  border-radius: 16px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+.quick-chip:hover { background: #3a3220; border-color: #ffb040; }
+.quick-chip.active { background: #ff9800; color: #1a1d24; font-weight: bold; }
+.birth-inputs { display: grid; grid-template-columns: 2fr 1fr 1fr; gap: 4px; }
+.req { color: #ff4b4b; }
+.button-row { display: flex; gap: 8px; margin-top: 16px; flex-wrap: wrap; }
+.button-row button { flex: 1; min-width: 100px; }
+
+/* ===== 患者リスト ===== */
+#patient-list { margin: 12px 0; }
+.patient-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px;
+  border-bottom: 1px solid #262730;
+}
+.patient-item .info {
+  flex: 1;
+  font-size: 0.9rem;
+}
+.patient-item .actions { display: flex; gap: 4px; }
+.patient-item button {
+  padding: 4px 8px;
+  font-size: 0.85rem;
+}
+.shift-divider {
+  font-size: 0.85rem;
+  color: #888;
+  border-bottom: 1px solid #444;
+  padding: 8px 0 4px 0;
+  margin-top: 12px;
+  font-weight: bold;
+}
+
+/* ===== 情報ボックス ===== */
+.info-box {
+  background: #1e3a28;
+  border: 1px solid #2d6141;
+  padding: 8px 12px;
+  border-radius: 4px;
+  margin: 8px 0;
+  color: #d0f0d0;
+}
+.info-box.warning {
+  background: #3a2f1e;
+  border-color: #614e2d;
+  color: #f0e0c0;
+}
+.info-box.error {
+  background: #3a1e1e;
+  border-color: #612d2d;
+  color: #f0c0c0;
+}
+
+/* ===== 台帳プレビュー ===== */
+#ledger-canvases canvas {
+  display: block;
+  margin: 12px 0;
+  max-width: 100%;
+  height: auto;
+  background: white;
+  border: 1px solid #333;
+}
+
+/* ===== ゴミ箱 ===== */
+.trash-section { margin-top: 24px; }
+.trash-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px;
+  border-bottom: 1px solid #262730;
+  font-size: 0.85rem;
+}
+.trash-item .info { flex: 1; color: #aaa; }
+
+/* ===== ステータスバー ===== */
+#status-bar {
+  position: fixed;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  padding: 8px 16px;
+  background: #1a1d24;
+  border-top: 1px solid #333;
+  font-size: 0.85rem;
+  color: #888;
+  display: none;
+}
+#status-bar.show { display: block; }
+#status-bar.success { color: #4caf50; }
+#status-bar.warning { color: #ff9800; }
+#status-bar.error { color: #f44336; }
+
+/* ===== 印刷用スタイル ===== */
+@media print {
+  @page { size: A4; margin: 0; }
+  body { background: white; }
+  .main-header, .input-mode-section, .patients-section,
+  .trash-section, #status-bar, .button-row { display: none !important; }
+  #ledger-preview-section { display: block !important; }
+  #ledger-canvases canvas {
+    page-break-after: always;
+    width: 100%;
+    height: 100vh;
+    object-fit: contain;
+    margin: 0;
+    border: none;
+  }
+  #ledger-canvases canvas:last-child { page-break-after: avoid; }
+}
+
+/* ===== モバイル対応 ===== */
+@media (max-width: 600px) {
+  .mode-buttons { grid-template-columns: 1fr; }
+  .form-grid-2, .form-grid-3 { grid-template-columns: 1fr; }
+  .form-grid-vitals { grid-template-columns: repeat(2, 1fr); }
+  .screen { padding: 12px; }
+}
+
+/* ===== トリアージ台帳レイアウト ===== */
+.triage-ledger {
+  background: white;
+  color: black;
+  width: 210mm;
+  min-height: 290mm;
+  padding: 0;
+  margin: 0 auto 12px;
+  box-sizing: border-box;
+  font-family: "Yu Gothic", "Hiragino Sans", "Noto Sans CJK JP", sans-serif;
+  font-size: 11pt;
+  line-height: 1.4;
+  border: none;
+}
+.triage-ledger .t-row {
+  display: grid;
+  border-bottom: 1px solid #000;
+  min-height: 24px;
+}
+.triage-ledger .t-header {
+  grid-template-columns: 60px 1fr 160px 80px;
+  min-height: 40px;
+}
+.triage-ledger .t-header .t-title {
+  font-size: 22pt;
+  font-weight: bold;
+  text-align: center;
+  line-height: 40px;
+}
+.triage-ledger .t-header .t-no {
+  font-weight: bold;
+}
+.triage-ledger .t-label-top {
+  font-size: 9pt;
+  background: #f0f0f0;
+  border-bottom: 1px solid #000;
+  padding: 2px 6px;
+  font-weight: bold;
+}
+.triage-ledger .t-no-value {
+  font-size: 16pt;
+  text-align: center;
+  padding: 4px;
+}
+/* ヘッダーセル（No./記載者/確認印）はt-cellのpaddingを0にして
+   内側のt-label-topのborder-bottomがセル端まで届くようにする */
+.triage-ledger .t-header .t-no,
+.triage-ledger .t-header .t-recorder,
+.triage-ledger .t-header .t-stamp {
+  padding: 0;
+}
+.triage-ledger .t-header .t-no .t-value,
+.triage-ledger .t-header .t-recorder .t-value,
+.triage-ledger .t-header .t-stamp .t-value {
+  padding: 4px 6px;
+}
+.triage-ledger .t-cell {
+  padding: 4px 6px;
+  border-right: 1px solid #000;
+}
+/* 端のセルにも枠線を入れる（紙の台帳と同じく全セル枠線） */
+.triage-ledger .t-row > .t-cell:first-child { border-left: 1px solid #000; }
+.triage-ledger .t-row > .t-cell:last-child { border-right: 1px solid #000; }
+.triage-ledger .t-row:first-child { border-top: 1px solid #000; }
+.triage-ledger .t-label {
+  background: #f0f0f0;
+  font-weight: bold;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.triage-ledger .t-sublabel {
+  background: #f8f8f8;
+  font-weight: bold;
+  text-align: center;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 2px 6px;
+}
+.triage-ledger .t-value { padding: 4px 6px; }
+.triage-ledger .t-wide { }
+.triage-ledger .t-suffix { color: #666; font-size: 9pt; }
+
+/* 行別のレイアウト */
+.triage-ledger .t-row:nth-child(2) {
+  grid-template-columns: 90px 1fr 80px 1fr 80px 180px;
+}
+.triage-ledger .t-row:nth-child(3) {
+  grid-template-columns: 90px 1fr 80px 1fr;
+}
+.triage-ledger .t-row:nth-child(4) {
+  grid-template-columns: 90px 1fr 1fr;
+}
+.triage-ledger .t-row:nth-child(5) {
+  grid-template-columns: 90px 1fr;
+}
+.triage-ledger .t-main-row {
+  grid-template-columns: 90px 1fr 280px;
+  min-height: 300px;
+}
+.triage-ledger .t-row:nth-child(7) {
+  grid-template-columns: 90px 1fr;
+}
+.triage-ledger .t-row:nth-child(8) {
+  grid-template-columns: 90px 1fr;
+}
+.triage-ledger .t-freenote-row {
+  grid-template-columns: 90px 1fr;
+  min-height: 80px;
+}
+.triage-ledger .t-patientname {
+  display: flex; flex-direction: column; justify-content: center;
+}
+.triage-ledger .t-kana { font-size: 10pt; color: #333; }
+.triage-ledger .t-kanji { font-size: 14pt; font-weight: bold; }
+.triage-ledger .t-complaint, .triage-ledger .t-history { min-height: 40px; white-space: pre-wrap; }
+.triage-ledger .t-history { min-height: 280px; vertical-align: top; align-self: flex-start; }
+.triage-ledger .t-freenote { min-height: 60px; white-space: pre-wrap; }
+
+/* バイタル */
+.triage-ledger .t-vitals-wrap { padding: 0; }
+.triage-ledger .t-vitals-title {
+  text-align: center;
+  font-weight: bold;
+  background: #f0f0f0;
+  padding: 4px;
+  border-bottom: 1px solid #000;
+}
+.triage-ledger .t-vitals {
+  width: 100%;
+  border-collapse: collapse;
+}
+.triage-ledger .t-vitals th {
+  background: #f8f8f8;
+  border: 1px solid #000;
+  padding: 4px;
+  width: 50px;
+  text-align: center;
+  font-size: 10pt;
+}
+.triage-ledger .t-vitals td {
+  border: 1px solid #000;
+  padding: 4px 8px;
+  text-align: right;
+}
+.triage-ledger .t-vitals small { color: #666; }
+
+/* 依頼日時ラベル（上段:依頼日時、下段:日勤・夜勤） */
+.triage-ledger .t-dt-label {
+  flex-direction: column;
+  gap: 4px;
+  padding: 4px 2px;
+}
+.triage-ledger .t-dt-label > div { width: 100%; text-align: center; }
+.triage-ledger .t-dt-shift { font-weight: normal; white-space: nowrap; }
+/* 依頼日時行のコンパクト◯スタイル */
+.triage-ledger .t-dt-shift .sel {
+  padding: 0 3px;
+  border-width: 1.5px;
+  margin: 0 1px;
+}
+.triage-ledger .t-dt-shift small { font-size: 8pt; }
+
+/* 応需/不応需エリア */
+.triage-ledger .t-decision-label {
+  text-align: center;
+  padding: 8px 4px;
+  font-size: 10pt;
+  flex-direction: column;
+  gap: 4px;
+}
+.triage-ledger .t-decision-label > div { width: 100%; }
+.triage-ledger .t-init-wrap { padding: 0; }
+.triage-ledger .t-init-row, .triage-ledger .t-out-row {
+  display: grid;
+  grid-template-columns: 110px 1fr;
+  border-bottom: 1px solid #000;
+}
+.triage-ledger .t-init-row:last-child, .triage-ledger .t-out-row:last-child { border-bottom: none; }
+.triage-ledger .t-init-opts, .triage-ledger .t-out-opts, .triage-ledger .t-ward-opts { padding: 4px 8px; }
+.triage-ledger .t-out-row { grid-template-columns: 110px 1fr 110px 2fr; }
+/* 最終転帰と入院の場合の間、入院の場合とward-optsの間に縦線を入れる */
+.triage-ledger .t-out-row > *:nth-child(3),
+.triage-ledger .t-out-row > *:nth-child(4) {
+  border-left: 1px solid #000;
+}
+.triage-ledger .t-ward-opts div { margin: 2px 0; }
+
+/* 不応需理由 */
+.triage-ledger .t-reasons { padding: 4px 8px; }
+.triage-ledger .t-reasons div { margin: 2px 0; }
+
+/* マーク */
+.triage-ledger .mark {
+  display: inline-block;
+  color: red;
+  font-weight: bold;
+  font-size: 14pt;
+  line-height: 1;
+  vertical-align: middle;
+}
+.triage-ledger .check {
+  display: inline-block;
+  color: red;
+  font-weight: bold;
+  font-size: 12pt;
+  line-height: 1;
+  vertical-align: middle;
+}
+/* 選択された選択肢を赤い○で囲む（紙の台帳スタイル） */
+.triage-ledger .sel {
+  display: inline-block;
+  border: 2px solid red;
+  border-radius: 50%;
+  padding: 1px 8px;
+  color: red;
+  font-weight: bold;
+  line-height: 1.1;
+  margin: 0 2px;
+  white-space: nowrap;
+}
+
+/* 個別台帳のラッパー */
+.ledger-item {
+  margin-bottom: 24px;
+  padding-bottom: 12px;
+  border-bottom: 1px dashed #333;
+}
+.ledger-item:last-child {
+  border-bottom: none;
+}
+.ledger-item-toolbar {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 8px;
+}
+.btn-print-single {
+  font-size: 0.85rem;
+  padding: 6px 12px;
+}
+
+/* 印刷 */
+@media print {
+  /* 用紙全面を使い、CSSで台帳を80%縮小＆用紙中央に配置する
+     （ブラウザの印刷ダイアログで @page の余白を上書きされても中央になるよう
+       各台帳を 100vh の flex コンテナに入れて center で揃える） */
+  @page { size: A4; margin: 0; }
+  html, body { margin: 0 !important; padding: 0 !important; background: white; }
+  body * { visibility: hidden; }
+  #ledger-canvases, #ledger-canvases * { visibility: visible; }
+  #ledger-canvases {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+  }
+  /* 印刷時はツールバーを非表示 */
+  .ledger-item-toolbar, .ledger-item-toolbar * { visibility: hidden !important; display: none !important; }
+  /* 個別印刷時：マークされた他の台帳を完全に非表示＆ページ送りも無効化 */
+  .ledger-item.print-hidden,
+  .ledger-item.print-hidden * {
+    visibility: hidden !important;
+    display: none !important;
+  }
+  /* 各台帳ラッパーを 100vh のフレックスコンテナにして内部の台帳を中央配置 */
+  .ledger-item {
+    width: 100% !important;
+    min-height: 100vh !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    border: none !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    page-break-after: always !important;
+    page-break-inside: avoid !important;
+  }
+  .ledger-item:last-child { page-break-after: avoid !important; }
+  .triage-ledger {
+    /* A4(210×297mm)の約80%のサイズで固定 */
+    width: 168mm !important;       /* 80% of 210mm */
+    min-height: 237.6mm !important; /* 80% of 297mm */
+    margin: 0 !important;
+    padding: 0 !important;
+    /* セルごとの枠線で外枠が構成されるため、外枠borderは不要 */
+    border: none !important;
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+    /* 内部のテキストサイズも80%相当にする */
+    font-size: 80% !important;
+  }
+  /* 枠線色を強制（dark mode でも） */
+  .triage-ledger * { color: #000 !important; }
+  .triage-ledger .t-row,
+  .triage-ledger .t-cell,
+  .triage-ledger table, .triage-ledger th, .triage-ledger td {
+    border-color: #000 !important;
+  }
+}
+
+/* 画面表示時は少し縮小 */
+@media screen {
+  .triage-ledger {
+    transform: scale(0.75);
+    transform-origin: top center;
+    margin-bottom: -60mm !important;
+  }
+}
+
+/* トークン設定（ヘッダー内） */
+.token-setting { position: relative; }
+.token-setting summary { color: #888; font-size: 0.85rem; cursor: pointer; }
+.token-setting[open] {
+  position: absolute; top: 40px; right: 16px; z-index: 100;
+  background: #1a1d24; border: 1px solid #333; padding: 12px;
+  border-radius: 4px; width: 320px;
+}
