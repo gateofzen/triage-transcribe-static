@@ -339,7 +339,7 @@ const Parser = {
   },
 
   // 画像に白い余白（quiet zone）を追加。jsQR は QR周囲の静謐領域を必要とする
-  _drawWithPadding(img, padPx, scale = 1.0) {
+  _drawWithPadding(img, padPx, scale = 1.0, smooth = true) {
     const w0 = img.naturalWidth || img.width;
     const h0 = img.naturalHeight || img.height;
     const outW = Math.round((w0 + padPx * 2) * scale);
@@ -356,7 +356,8 @@ const Parser = {
     const dh = Math.round(h0 * scale);
     const dx = Math.round(padPx * scale);
     const dy = Math.round(padPx * scale);
-    ctx.imageSmoothingEnabled = scale < 1;
+    ctx.imageSmoothingEnabled = smooth;
+    if (smooth) ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(img, dx, dy, dw, dh);
     return { canvas, ctx };
   },
@@ -397,16 +398,21 @@ const Parser = {
 
       // ===== Phase 0: 白余白(quiet zone)付き - jsQRは画像端にQRが接している場合に失敗するため =====
       //   救急隊ダッシュボードの右クリック画像コピー等、quiet zoneが欠けた画像に有効
-      for (const padPx of [40, 80, 60, 120, 20]) {
-        for (const scale of [1.0, 1.5, 2.0]) {
+      //   padding + scale + smooth/sharp の多パターンを試行
+      const padSizes = [40, 80, 20, 60, 100, 120];
+      const padScales = [1.0, 1.5, 2.0, 0.75, 0.5, 2.5, 3.0, 1.25];
+      for (const padPx of padSizes) {
+        for (const scale of padScales) {
           const outW = Math.round((w0 + padPx * 2) * scale);
           const outH = Math.round((h0 + padPx * 2) * scale);
           if (outW < 40 || outW > 4096) continue;
-          const { ctx } = this._drawWithPadding(img, padPx, scale);
-          const data = this._getImageData(ctx, outW, outH);
-          if (!data) continue;
-          const r = this._tryJsQR(data);
-          if (r) { console.log('[QR] Phase0 padding=', padPx, 'scale=', scale); return r; }
+          for (const smooth of [true, false]) {
+            const { ctx } = this._drawWithPadding(img, padPx, scale, smooth);
+            const data = this._getImageData(ctx, outW, outH);
+            if (!data) continue;
+            const r = this._tryJsQR(data);
+            if (r) { console.log('[QR] Phase0 padding=', padPx, 'scale=', scale, 'smooth=', smooth); return r; }
+          }
         }
       }
 
