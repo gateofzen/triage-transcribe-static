@@ -417,13 +417,15 @@ textarea { resize: vertical; }
 }
 .triage-ledger .t-header {
   grid-template-columns: 60px 1fr 160px 80px;
-  min-height: 40px;
+  min-height: 80px;
 }
 .triage-ledger .t-header .t-title {
   font-size: 22pt;
   font-weight: bold;
   text-align: center;
-  line-height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
 .triage-ledger .t-header .t-no {
   font-weight: bold;
@@ -446,11 +448,19 @@ textarea { resize: vertical; }
 .triage-ledger .t-header .t-recorder,
 .triage-ledger .t-header .t-stamp {
   padding: 0;
+  display: flex;
+  flex-direction: column;
 }
+/* 値エリアを残りの縦スペース全体に広げて、手書き・捺印用の広いスペースを確保 */
 .triage-ledger .t-header .t-no .t-value,
 .triage-ledger .t-header .t-recorder .t-value,
 .triage-ledger .t-header .t-stamp .t-value {
   padding: 4px 6px;
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
 }
 .triage-ledger .t-cell {
   padding: 4px 6px;

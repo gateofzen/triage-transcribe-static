@@ -186,14 +186,14 @@ const Renderer = {
               <div>・${sel('入院', outAdmit)}</div>
               <div>・${sel('帰宅', outHome)}</div>
               <div>・${sel('その他', outOther)}</div>
-              <div>(${(res.out_other && res.out_other.trim()) ? esc(res.out_other) : '　　　　　　　　　　'})</div>
+              <div>(${(res.out_other && res.out_other.trim()) ? esc(res.out_other) : '　　　　　'})</div>
             </div>
             <div class="t-sublabel">入院の場合</div>
             <div class="t-ward-opts">
               <div>病棟：・${sel('4東', ward4H)}　・${sel('HCU', wardHCU)}　・${sel('ICU', wardICU)}</div>
-              <div>・${sel(`${wardOtherTxt ? esc(wardOtherTxt) : '(　　　　　　　　)'}病棟`, wardOther)}</div>
+              <div>・${sel(`${wardOtherTxt ? esc(wardOtherTxt) : '(　　　　　　)'}病棟`, wardOther)}</div>
               <div>主科：・${sel('臨研', mainRin)}　・${sel('救急科', mainER)}</div>
-              <div>・${sel(`(${mainOtherTxt ? esc(mainOtherTxt) : '　　　　　　　　'})科`, mainOther)}</div>
+              <div>・${sel(`(${mainOtherTxt ? esc(mainOtherTxt) : '　　　　　　'})科`, mainOther)}</div>
             </div>
           </div>
         </div>
